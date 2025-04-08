@@ -1,13 +1,7 @@
 import 'package:dio/dio.dart';
 
 class UserServices {
-  final Dio _dio = Dio(
-    // BaseOptions(
-    //   baseUrl: 'https://10.0.2.2:8080', // API URL
-    //   connectTimeout: 5000, // 5 seconds
-    //   receiveTimeout: 3000, // 3 seconds
-    // ),
-  );
+  final Dio _dio = Dio();
   // final String host = 'http://10.0.2.2:8080'; // API URL
   final String host = 'http://localhost:8080'; // API URL
 

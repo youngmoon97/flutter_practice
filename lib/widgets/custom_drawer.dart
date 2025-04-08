@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_prac/provider/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    UserProvider userProvider = Provider.of<UserProvider>(
+      context,
+      listen: true,
+    );
+
     return Drawer(
       child: Scaffold(
         body: ListView(
@@ -62,41 +69,51 @@ class CustomDrawer extends StatelessWidget {
         bottomSheet: Container(
           color: Colors.blue,
           child:
-          //  로그아웃
-          // _DrawerItem(
-          //   icon: Icons.logout,
-          //   text: '로그아웃',
-          //   onTap: () {},
-          //   color: Colors.white,
-          // ),
-          Row(
-            children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close the drawer
-                    Navigator.pushNamed(
-                      context,
-                      '/auth/login',
-                    ); // Navigate to login screen
-                  },
-                  child: Text('로그인', style: TextStyle(color: Colors.white)),
-                ),
-              ),
-              Expanded(
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close the drawer
-                    Navigator.pushNamed(
-                      context,
-                      '/auth/join',
-                    ); // Navigate to join screen
-                  },
-                  child: Text('회원가입', style: TextStyle(color: Colors.white)),
-                ),
-              ),
-            ],
-          ),
+              userProvider != null && userProvider.isLogin
+                  ?
+                  //  로그아웃
+                  _DrawerItem(
+                    icon: Icons.logout,
+                    text: '로그아웃',
+                    onTap: () {},
+                    color: Colors.white,
+                  )
+                  :
+                  // 로그인 / 회원가입
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close the drawer
+                            Navigator.pushNamed(
+                              context,
+                              '/auth/login',
+                            ); // Navigate to login screen
+                          },
+                          child: Text(
+                            '로그인',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close the drawer
+                            Navigator.pushNamed(
+                              context,
+                              '/auth/join',
+                            ); // Navigate to join screen
+                          },
+                          child: Text(
+                            '회원가입',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
         ),
       ),
     );

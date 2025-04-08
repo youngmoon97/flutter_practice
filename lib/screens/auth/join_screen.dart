@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_prac/notifications/snackbar.dart';
 import 'package:flutter_app_prac/services/user_services.dart';
 import 'package:flutter_app_prac/widgets/common_bottom_navigation_bar.dart';
 import 'package:flutter_app_prac/widgets/custom_button.dart';
@@ -49,7 +50,12 @@ class _JoinScreenState extends State<JoinScreen> {
                 ),
               ),
               TextFormField(
-                validator: (value) {},
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '아이디를 입력하세요.';
+                  }
+                  return null; // 유효성 검사 통과
+                },
                 decoration: InputDecoration(
                   labelText: '아이디',
                   hintText: '아이디를 입력하세요.',
@@ -68,7 +74,15 @@ class _JoinScreenState extends State<JoinScreen> {
               const SizedBox(height: 16),
 
               TextFormField(
-                validator: (value) {},
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '비밀번호를 입력하세요.';
+                  }
+                  if (value.length < 6) {
+                    return '비밀번호는 6자 이상이어야 합니다.';
+                  }
+                  return null; // 유효성 검사 통과
+                },
                 decoration: InputDecoration(
                   labelText: '비밀번호',
                   hintText: '비밀번호를 입력하세요.',
@@ -88,7 +102,15 @@ class _JoinScreenState extends State<JoinScreen> {
               const SizedBox(height: 16),
 
               TextFormField(
-                validator: (value) {},
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '비밀번호를 입력하세요.';
+                  }
+                  if (value != _password) {
+                    return '비밀번호가 일치하지 않습니다.';
+                  }
+                  return null; // 유효성 검사 통과
+                },
                 decoration: InputDecoration(
                   labelText: '비밀번호 확인',
                   hintText: '비밀번호 확인를 입력하세요.',
@@ -108,7 +130,12 @@ class _JoinScreenState extends State<JoinScreen> {
               const SizedBox(height: 16),
 
               TextFormField(
-                validator: (value) {},
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '이름를 입력하세요.';
+                  }
+                  return null; // 유효성 검사 통과
+                },
                 decoration: InputDecoration(
                   labelText: '이름',
                   hintText: '이름을 입력하세요.',
@@ -127,7 +154,18 @@ class _JoinScreenState extends State<JoinScreen> {
               const SizedBox(height: 16),
 
               TextFormField(
-                validator: (value) {},
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '이메일을 입력하세요.';
+                  }
+                  bool emailValid = RegExp(
+                    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                  ).hasMatch(value);
+                  if (!emailValid) {
+                    return '유효한 이메일을 입력해주세요.';
+                  }
+                  return null; // 유효성 검사 통과
+                },
                 decoration: InputDecoration(
                   labelText: '이메일',
                   hintText: '이메일를 입력하세요.',
@@ -152,15 +190,8 @@ class _JoinScreenState extends State<JoinScreen> {
         text: "회원가입",
         inFullWidth: true,
         onPressed: () async {
-          print("클릭클릭");
           // 회원가입 요청
           if (!_formKey.currentState!.validate()) {
-            return;
-          }
-          if (_password != _confirmPassword) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('비밀번호가 일치하지 않습니다.')));
             return;
           }
           bool result = await userServices.registerUser({
@@ -171,9 +202,21 @@ class _JoinScreenState extends State<JoinScreen> {
           });
           if (result) {
             print("회원가입 성공");
+            Snackbar(
+              text: '회원가입 성공하였습니다.',
+              icon: Icons.check_circle,
+              duration: 2,
+              backgroundColor: Colors.greenAccent,
+            ).shoSnackbar(context);
             Navigator.pop(context);
           } else {
             print("회원가입 실패");
+            Snackbar(
+              text: '회원가입 실패하였습니다.',
+              icon: Icons.error,
+              duration: 2,
+              backgroundColor: Colors.redAccent,
+            ).shoSnackbar(context);
           }
         },
       ),

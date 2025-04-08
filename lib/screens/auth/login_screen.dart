@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_prac/notifications/snackbar.dart';
 import 'package:flutter_app_prac/provider/user_provider.dart';
 import 'package:flutter_app_prac/widgets/common_bottom_navigation_bar.dart';
 import 'package:flutter_app_prac/widgets/custom_button.dart';
 import 'package:flutter_app_prac/widgets/custom_drawer.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,7 +24,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Provider 선언
+    // listen
+    // -true : 변경 사항을 수신 대기⭕
+    // -false : 변경 사항을 수신 대기❌
+    UserProvider userProvider = Provider.of<UserProvider>(
+      context,
+      listen: false,
+    );
+
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: SizedBox.shrink(),
         actions: [
@@ -123,9 +135,40 @@ class _LoginScreenState extends State<LoginScreen> {
               CustomButton(
                 text: "로그인",
                 onPressed: () async {
-                  // TODO : 로그인 처리
+                  // 유효성 검사
+                  if (!_formKey.currentState!.validate()) {
+                    return;
+                  }
+
                   final username = _usernameController.text;
                   final password = _passwordController.text;
+
+                  // 로그인 요청
+                  await userProvider.login(username, password);
+
+                  if (userProvider.isLogin) {
+                    print("로그인 성공");
+                    Snackbar(
+                      text: '로그인 성공했습니다.',
+                      icon: Icons.check_circle,
+                      duration: 2,
+                      backgroundColor: Colors.green,
+                    ).shoSnackbar(context);
+                    // 로그인 성공
+                    // 홈 화면으로 이동
+                    Navigator.pop(context);
+                    Navigator.pushReplacementNamed(context, '/');
+                    return;
+                  } else {
+                    print("로그인 실패");
+                    // 로그인 실패
+                    Snackbar(
+                      text: '로그인 실패했습니다.',
+                      icon: Icons.error,
+                      duration: 2,
+                      backgroundColor: Colors.red,
+                    ).shoSnackbar(context);
+                  }
                 },
               ),
               Row(

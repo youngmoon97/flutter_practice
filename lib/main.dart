@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_prac/provider/user_provider.dart';
 import 'package:flutter_app_prac/screens/auth/join_screen.dart';
 import 'package:flutter_app_prac/screens/auth/login_screen.dart';
 import 'package:flutter_app_prac/screens/home_screen.dart';
@@ -6,9 +7,20 @@ import 'package:flutter_app_prac/screens/mypage/profile_screen.dart';
 import 'package:flutter_app_prac/screens/user/cart_screen.dart';
 import 'package:flutter_app_prac/screens/user/product_screen.dart';
 import 'package:flutter_app_prac/screens/user/search_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  // runApp() : Flutter 앱의 시작점을 지정하는 함수
+  // - Provider(MyApp)을 실행
+  runApp(
+    // ⭐ Provider
+    // - ChangeNotifierProvider를 사용하여 UserProvider를 전역으로 사용할 수 있도록
+    ChangeNotifierProvider(
+      create: (context) => UserProvider(),
+      child: const MyApp(),
+    ),
+  );
+  // runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
