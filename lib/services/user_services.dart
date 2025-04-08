@@ -8,7 +8,8 @@ class UserServices {
     //   receiveTimeout: 3000, // 3 seconds
     // ),
   );
-  final String host = 'https://10.0.2.2:8080'; // API URL
+  // final String host = 'http://10.0.2.2:8080'; // API URL
+  final String host = 'http://localhost:8080'; // API URL
 
   Future<bool> registerUser(Map<String, dynamic> userData) async {
     try {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_prac/provider/user_provider.dart';
 import 'package:flutter_app_prac/widgets/common_bottom_navigation_bar.dart';
 import 'package:flutter_app_prac/widgets/custom_button.dart';
 import 'package:flutter_app_prac/widgets/custom_drawer.dart';
@@ -81,6 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 obscureText: !_isPasswordVisible,
               ),
+              // 자동 로그인, 아이디 저장 체크박스
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -120,8 +122,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               CustomButton(
                 text: "로그인",
-                onPressed: () {
+                onPressed: () async {
                   // TODO : 로그인 처리
+                  final username = _usernameController.text;
+                  final password = _passwordController.text;
                 },
               ),
               Row(

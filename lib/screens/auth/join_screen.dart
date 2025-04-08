@@ -152,6 +152,7 @@ class _JoinScreenState extends State<JoinScreen> {
         text: "회원가입",
         inFullWidth: true,
         onPressed: () async {
+          print("클릭클릭");
           // 회원가입 요청
           if (!_formKey.currentState!.validate()) {
             return;
