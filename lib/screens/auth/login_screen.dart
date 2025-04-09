@@ -4,6 +4,7 @@ import 'package:flutter_app_prac/provider/user_provider.dart';
 import 'package:flutter_app_prac/widgets/common_bottom_navigation_bar.dart';
 import 'package:flutter_app_prac/widgets/custom_button.dart';
 import 'package:flutter_app_prac/widgets/custom_drawer.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,6 +22,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  // 저장소
+  final storage = const FlutterSecureStorage();
+  String? _username; // 아이디 저장소
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername(); // 아이디 저장소에서 아이디 불러오기
+  }
+
+  void _loadUsername() async {
+    _username = await storage.read(key: 'username');
+    if (_username != null) {
+      _usernameController.text = _username!;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +79,12 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _usernameController,
-                validator: (value) {},
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '아이디를 입력하세요.';
+                  }
+                  return null; // 유효성 검사 통과
+                },
                 decoration: InputDecoration(
                   labelText: '아이디',
                   hintText: '아이디를 입력하세요.',
@@ -73,7 +95,12 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
-                validator: (value) {},
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '비밀번호를 입력하세요.';
+                  }
+                  return null; // 유효성 검사 통과
+                },
                 decoration: InputDecoration(
                   labelText: '비밀번호',
                   hintText: '비밀번호를 입력하세요.',
@@ -144,7 +171,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   final password = _passwordController.text;
 
                   // 로그인 요청
-                  await userProvider.login(username, password);
+                  await userProvider.login(
+                    username,
+                    password,
+                    rememberId: _rememberId,
+                    rememberMe: _rememberMe,
+                  );
 
                   if (userProvider.isLogin) {
                     print("로그인 성공");

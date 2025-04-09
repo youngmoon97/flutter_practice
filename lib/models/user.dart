@@ -2,59 +2,66 @@ import 'package:flutter_app_prac/models/auth.dart';
 
 class User {
   int? no;
-  String? userId;
-  String? userPw;
-  String? userPwCheck;
+  String? id;
+  String? username;
+  String? password;
   String? name;
   String? email;
-  DateTime? regDate;
-  DateTime? updDate;
-  int? enabled;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  bool? enabled;
   List<Auth>? authList;
 
   User({
     this.no,
-    this.userId,
-    this.userPw,
-    this.userPwCheck,
+    this.id,
+    this.username,
+    this.password,
     this.name,
     this.email,
-    this.regDate,
-    this.updDate,
+    this.createdAt,
+    this.updatedAt,
     this.enabled,
     this.authList,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
+  factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      no: json['no'],
-      userId: json['userId'],
-      userPw: json['userPw'],
-      userPwCheck: json['userPwCheck'],
-      name: json['name'],
-      email: json['email'],
-      regDate: json['regDate'] != null ? DateTime.parse(json['regDate']) : null,
-      updDate: json['updDate'] != null ? DateTime.parse(json['updDate']) : null,
-      enabled: json['enabled'],
+      no: map['no'],
+      id: map['id'].toString(),
+      username: map['username'],
+      password: map['password'],
+      name: map['name'],
+      email: map['email'],
+      createdAt:
+          map['createdAt'] != null
+              ? DateTime.fromMicrosecondsSinceEpoch(map['createdAt'])
+              : null,
+      updatedAt:
+          map['updatedAt'] != null
+              ? DateTime.fromMicrosecondsSinceEpoch(map['updatedAt'])
+              : null,
+      enabled: map['enabled'],
       authList:
-          (json['authList'] as List<dynamic>)
-              .map((authJson) => Auth.fromJson(authJson))
-              .toList(),
+          map['authList'] != null
+              ? List<Auth>.from(
+                map['authList'].map((auth) => Auth.fromMap(auth)),
+              )
+              : [],
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'no': no,
-      'userId': userId,
-      'userPw': userPw,
-      'userPwCheck': userPwCheck,
+      'id': id,
+      'username': username,
+      'password': password,
       'name': name,
       'email': email,
-      'regDate': regDate?.toIso8601String(),
-      'updDate': updDate?.toIso8601String(),
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
       'enabled': enabled,
-      'authList': authList?.map((auth) => auth.toJson()).toList(),
     };
   }
 }

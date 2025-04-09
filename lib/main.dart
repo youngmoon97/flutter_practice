@@ -29,6 +29,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // 앱 실행 시, 자동로그인
+    Provider.of<UserProvider>(context, listen: false).autoLogin();
+
     return MaterialApp(
       title: 'App',
       theme: ThemeData(

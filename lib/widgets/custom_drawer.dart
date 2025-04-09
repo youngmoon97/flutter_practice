@@ -17,9 +17,12 @@ class CustomDrawer extends StatelessWidget {
         body: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
+            DrawerHeader(
               decoration: BoxDecoration(color: Colors.blue),
-              child: SizedBox.shrink(),
+              child:
+                  userProvider.isLogin
+                      ? Text(userProvider.userInfo.name.toString())
+                      : SizedBox.shrink(),
             ),
             _DrawerItem(
               icon: Icons.home,

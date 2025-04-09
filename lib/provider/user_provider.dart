@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_prac/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProvider extends ChangeNotifier {
   // 로그인 정보
@@ -36,12 +37,17 @@ class UserProvider extends ChangeNotifier {
   /// ⬅ jwt token
   ///
   /// 2. jwt 토큰을 SecureStorage 에 저장
-  Future<void> login(String username, String password) async {
+  Future<void> login(
+    String username,
+    String password, {
+    bool rememberId = false,
+    bool rememberMe = false,
+  }) async {
     _loginStat = false; // 로그인 상태 초기화
 
     // const url = 'http://10.0.2.2:8080/login';
     const url = 'http://localhost:8080/login';
-    final data = {"username": username, "password": password};
+    final data = {'username': username, 'password': password};
 
     try {
       // 로그인 요청
@@ -49,21 +55,35 @@ class UserProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         // JWT -> SecureStorage 저장
         final authorizationHeader = response.headers['authorization']?.first;
-
         if (authorizationHeader == null) {
           print("로그인 정보가 없습니다.");
           return;
         }
 
         print('로그인 성공...');
-        // Authorization 헤더에서 "Bearer "를 제거하고 JWT 토큰 값을 추출
         final jwt = authorizationHeader.replaceFirst('Bearer ', '');
         print('JWT : $jwt');
         await storage.write(key: 'jwt', value: jwt);
-
         // 사용자 정보 => Provider에 업데이트
-        _userInfo = User.fromJson(json.decode(response.data));
+        print("response.data : ${response.data}");
+        _userInfo = User.fromMap(response.data);
         _loginStat = true;
+        //  ######## 로그인 처리 ##########
+
+        // 아이디 저장
+        // if (rememberId) {
+        //   await storage.write(key: 'username', value: username);
+        // } else {
+        //   await storage.delete(key: 'username');
+        // }
+        // // 자동 로그인
+        // if (rememberMe) {
+        //   final prefs = await SharedPreferences.getInstance();
+        //   await prefs.setBool('auto_login', true);
+        // } else {
+        //   final prefs = await SharedPreferences.getInstance();
+        //   await prefs.setBool('auto_login', false);
+        // }
       } else if (response.statusCode == 403) {
         print('아이디 또는 비밀번호가 일치하지 않습니다...');
       } else {
@@ -75,5 +95,60 @@ class UserProvider extends ChangeNotifier {
     }
     // 공유된 상태를 가진 위젯 다시 빌드
     notifyListeners();
+  }
+
+  // 사용자 정보 요청
+  Future<bool> getUserInfo() async {
+    const url = 'http://localhost:8080/users/info';
+    try {
+      String? jwt = await storage.read(key: 'jwt');
+      print('JWT : $jwt');
+      final response = await _dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Authrization': 'Bearer $jwt',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        // 사용자 정보 업데이트
+        final userInfo = response.data;
+        if (userInfo == null) {
+          print('사용자 정보가 없습니다.');
+          return false;
+        }
+        _userInfo = User.fromMap(userInfo);
+        notifyListeners();
+        return true;
+      } else {
+        print('사용자 정보 요청 실패...');
+        return false;
+      }
+    } catch (error) {
+      print("사용자 정보 요청 중 에러 발생 $error");
+      return false;
+    }
+  }
+
+  // 자동 로그인 처리
+  Future<void> autoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rememberMe = prefs.getBool('auto_login') ?? false;
+
+    if (rememberMe) {
+      final jwt = await storage.read(key: 'jwt');
+      if (jwt != null) {
+        // 사용자 정보 요청
+        bool result = await getUserInfo();
+
+        // 시용자 요청 정보 응답 성공 시, 로그인 여부 true로 설정
+        if (result) {
+          _loginStat = true;
+          notifyListeners();
+        }
+      }
+    }
   }
 }
