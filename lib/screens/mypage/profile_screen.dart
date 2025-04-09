@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_prac/models/user.dart';
+import 'package:flutter_app_prac/notifications/snackbar.dart';
 import 'package:flutter_app_prac/provider/user_provider.dart';
+import 'package:flutter_app_prac/screens/home_screen.dart';
+import 'package:flutter_app_prac/services/user_services.dart';
 import 'package:flutter_app_prac/widgets/common_bottom_navigation_bar.dart';
 import 'package:flutter_app_prac/widgets/custom_button.dart';
 import 'package:flutter_app_prac/widgets/custom_drawer.dart';
@@ -18,6 +22,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
+
+  User? _user;
+  UserService userService = UserService();
+
+  @override
+  void initState() {
+    super.initState();
+    // _user = User.fromMap(userProvider.userInfo.toMap());
+    // _usernameController.text = _user?.username ?? '';
+    // _nameController.text = _user?.name ?? '';
+    // _emailController.text = _user?.email ?? '';
+  }
 
   String? _username;
   String? _name;
@@ -40,8 +56,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
         Navigator.pushNamed(context, '/auth/login');
       });
-      return const SizedBox.shrink();
+      return const HomeScreen();
     }
+
+    // 로그인 상태
+    String? _username = userProvider.userInfo.username ?? '없음';
+
+    if (_user == null) {
+      userService.getUser(_username).then((value) {
+        setState(() {
+          _user = User.fromMap(value);
+        });
+      });
+      _usernameController.text = _user?.username ?? _username;
+      _nameController.text = _user?.name ?? '';
+      _emailController.text = _user?.email ?? '';
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: SizedBox.shrink(),
@@ -129,9 +160,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       bottomSheet: CustomButton(
         text: "회원 정보 수정",
         inFullWidth: true,
-        onPressed: () {
+        onPressed: () async {
           if (_formKey.currentState!.validate()) {
             // Perform the update action
+            bool result = await userService.updateUser({
+              'username': _username,
+              'name': _user!.name,
+              'email': _user!.email,
+            });
+            if (result) {
+              Snackbar(
+                text: "회원정보 수정 성공",
+                icon: Icons.check_circle,
+                backgroundColor: Colors.green,
+              ).shoSnackbar(context);
+              userProvider.userInfo = User(
+                username: _username,
+                name: _user!.name,
+                email: _user!.email,
+              );
+            }
             Navigator.pop(context);
           }
         },

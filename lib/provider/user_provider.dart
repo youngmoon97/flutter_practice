@@ -71,19 +71,19 @@ class UserProvider extends ChangeNotifier {
         //  ######## 로그인 처리 ##########
 
         // 아이디 저장
-        // if (rememberId) {
-        //   await storage.write(key: 'username', value: username);
-        // } else {
-        //   await storage.delete(key: 'username');
-        // }
-        // // 자동 로그인
-        // if (rememberMe) {
-        //   final prefs = await SharedPreferences.getInstance();
-        //   await prefs.setBool('auto_login', true);
-        // } else {
-        //   final prefs = await SharedPreferences.getInstance();
-        //   await prefs.setBool('auto_login', false);
-        // }
+        if (rememberId) {
+          await storage.write(key: 'username', value: username);
+        } else {
+          await storage.delete(key: 'username');
+        }
+        // 자동 로그인
+        if (rememberMe) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('auto_login', true);
+        } else {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('auto_login', false);
+        }
       } else if (response.statusCode == 403) {
         print('아이디 또는 비밀번호가 일치하지 않습니다...');
       } else {
@@ -150,5 +150,25 @@ class UserProvider extends ChangeNotifier {
         }
       }
     }
+  }
+
+  Future<void> logout() async {
+    try {
+      // 로그아웃 처리
+      // 1. jwt 토큰 삭제
+      await storage.delete(key: 'jwt');
+      // 2. 사용자 정보 삭제
+      _userInfo = User();
+      // 3. 로그인 상태 false로 변경
+      _loginStat = false;
+      // 4. 아이디저장, 자동 로그인 여부 false로 변경
+      storage.delete(key: 'username');
+      final prefs = await SharedPreferences.getInstance();
+      prefs.remove('auto_login');
+      print("로그아웃 처리 완료...");
+    } catch (error) {
+      print("로그아웃 처리 중 에러 발생 $error");
+    }
+    notifyListeners();
   }
 }

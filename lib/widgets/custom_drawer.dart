@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_prac/notifications/snackbar.dart';
 import 'package:flutter_app_prac/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -78,7 +79,18 @@ class CustomDrawer extends StatelessWidget {
                   _DrawerItem(
                     icon: Icons.logout,
                     text: '로그아웃',
-                    onTap: () {},
+                    onTap: () {
+                      // 로그아웃 처리
+                      userProvider.logout();
+                      Navigator.pop(context); // Close the drawer
+                      Navigator.pushReplacementNamed(context, '/');
+                      Snackbar(
+                        text: "로그아웃되었습니다.",
+                        icon: Icons.check_circle,
+                        duration: 2,
+                        backgroundColor: Colors.greenAccent,
+                      ).shoSnackbar(context);
+                    },
                     color: Colors.white,
                   )
                   :

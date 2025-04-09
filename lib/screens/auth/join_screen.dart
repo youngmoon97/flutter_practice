@@ -21,7 +21,7 @@ class _JoinScreenState extends State<JoinScreen> {
   String? _name;
   String? _email;
 
-  UserServices userServices = UserServices();
+  UserService userService = UserService();
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +194,7 @@ class _JoinScreenState extends State<JoinScreen> {
           if (!_formKey.currentState!.validate()) {
             return;
           }
-          bool result = await userServices.registerUser({
+          bool result = await userService.registerUser({
             'username': _username!,
             'password': _password!,
             'name': _name!,

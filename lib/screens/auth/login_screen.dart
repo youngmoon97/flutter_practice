@@ -22,6 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+
   // 저장소
   final storage = const FlutterSecureStorage();
   String? _username; // 아이디 저장소
