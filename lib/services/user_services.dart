@@ -74,4 +74,32 @@ class UserService {
       return false;
     }
   }
+
+  Future<bool> deleteUser(String? username) async {
+    if (username == null) {
+      return false;
+    }
+    try {
+      final storage = const FlutterSecureStorage();
+      String? jwt = await storage.read(key: "jwt");
+      final response = await _dio.delete(
+        '$host/users/$username',
+        options: Options(
+          headers: {
+            'Authrization': 'Bearer $jwt',
+            'Content-Type': 'applcation/json',
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        print("회원 탈퇴 성공");
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("회원 탈퇴 요청 시, 에러 발생");
+      return false;
+    }
+  }
 }

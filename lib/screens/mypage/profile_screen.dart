@@ -29,28 +29,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // _user = User.fromMap(userProvider.userInfo.toMap());
-    // _usernameController.text = _user?.username ?? '';
-    // _nameController.text = _user?.name ?? '';
-    // _emailController.text = _user?.email ?? '';
   }
 
   String? _username;
   String? _name;
   String? _email;
-
   @override
   Widget build(BuildContext context) {
     UserProvider userProvider = Provider.of<UserProvider>(
       context,
       listen: true,
     );
+
     //로그인 상태 확인
     // - 로그인 안되어있으면
     if (!userProvider.isLogin) {
       // 로그인 화면으로 리다이렉트
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        // 남아있는 스택이 있는지 확인
+        // 남아있는 스택이 있는지 확인3
         if (Navigator.canPop(context)) {
           Navigator.pop(context);
         }
@@ -61,16 +57,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     // 로그인 상태
     String? _username = userProvider.userInfo.username ?? '없음';
+    String? _name = userProvider.userInfo.name ?? '없음';
+    String? _email = userProvider.userInfo.email ?? '없음';
 
     if (_user == null) {
       userService.getUser(_username).then((value) {
+        print('value :  $value');
         setState(() {
           _user = User.fromMap(value);
         });
       });
+      // 텍스트폼 필드에 출력
       _usernameController.text = _user?.username ?? _username;
-      _nameController.text = _user?.name ?? '';
-      _emailController.text = _user?.email ?? '';
+      _nameController.text = _user?.name ?? _name;
+      _emailController.text = _user?.email ?? _email;
     }
 
     return Scaffold(
@@ -150,7 +150,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
               CustomButton(
                 text: "회원탈퇴",
                 inFullWidth: true,
-                onPressed: () {},
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("회원 탈퇴"),
+                        content: Text("정말로 탈퇴하시겠습니까?"),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text("취소"),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                          TextButton(
+                            child: Text("확인"),
+                            onPressed: () {
+                              Navigator.pop(context);
+                              userService.deleteUser(_username).then((value) {
+                                if (value) {
+                                  // 회원 탈퇴 성공
+                                  // - 로그아웃 처리
+                                  userProvider.logout();
+                                  // - 홈 화면으로 이동
+                                  Navigator.pushReplacementNamed(context, '/');
+                                }
+                              });
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
                 backgroundColor: Colors.redAccent,
               ),
             ],
